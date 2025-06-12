@@ -14,6 +14,8 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static specs.RegisterSpec.registerResponseSpec;
+import static specs.RegisterSpec.registerSpec;
 
 public class ReqresTests {
 
@@ -70,7 +72,7 @@ public class ReqresTests {
         authData.setEmail("eve.holt@reqres.in");
         authData.setPassword("pistol");
 
-        RegisterResponseBodyModel responce =  given()
+        RegisterResponseBodyModel responce = given()
                 .log().all()
                 .header("x-api-key", "reqres-free-v1")
                 .body(authData)
@@ -91,7 +93,7 @@ public class ReqresTests {
         authData.setEmail("eve.holt@reqres.in");
         authData.setPassword("pistol");
 
-        RegisterResponseLombokBodyModel responce =  given()
+        RegisterResponseLombokBodyModel responce = given()
                 .filter(new AllureRestAssured())
                 .log().all()
                 .header("x-api-key", "reqres-free-v1")
@@ -112,21 +114,18 @@ public class ReqresTests {
         RegisterBodyLombokModel authData = new RegisterBodyLombokModel();
         authData.setEmail("eve.holt@reqres.in");
         authData.setPassword("pistol");
-        RegisterResponseLombokBodyModel responce = step("Make request", ()->{
-             return given()
-                    .filter(withCustomTemplates())
-                    .log().all()
+        RegisterResponseLombokBodyModel responce = step("Make request", () -> {
+            return given(registerSpec)
                     .header("x-api-key", "reqres-free-v1")
                     .body(authData)
-                    .contentType("application/json")
-                    .post("https://reqres.in/api/register")
+                    .post("/api/register")
                     .then()
-                    .log().all()
+                    .spec(registerResponseSpec)
                     .statusCode(200)
                     .extract().body().as(RegisterResponseLombokBodyModel.class);
         });
 
-        step("Check responce", ()->{
+        step("Check responce", () -> {
             assertEquals("QpwL5tke4Pnpja7X4", responce.getToken());
             assertEquals(4, responce.getId());
         });
