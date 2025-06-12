@@ -3,8 +3,7 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class ReqresTests {
 
@@ -72,6 +71,7 @@ public class ReqresTests {
                 .body("", hasKey("id"))
                 .body("", hasKey("token"))
                 .body("id", is(4))
+                .body("token", notNullValue())
                 .body("token", is("QpwL5tke4Pnpja7X4"));
     }
 }
