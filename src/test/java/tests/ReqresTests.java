@@ -1,3 +1,5 @@
+package tests;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -9,13 +11,13 @@ import io.restassured.RestAssured;
 
 public class ReqresTests {
 
+    public int minTokenLength = 16;
+
     @BeforeAll
-    static void setup() {
+    static void beforeAll() {
         RestAssured.baseURI = "https://reqres.in";
         RestAssured.basePath = "/api";
     }
-}
-public int minTokenLength = 16;
 
     @Test
     void getSingleUserPositiveTest() {
@@ -34,7 +36,7 @@ public int minTokenLength = 16;
     void getSingleUserNotFoundTest() {
         given()
                 .header("x-api-key", "reqres-free-v1")
-                .get("/users/23")
+                .get("/api/users/23")
                 .then()
                 .statusCode(404);
     }
@@ -49,7 +51,7 @@ public int minTokenLength = 16;
                         "    \"job\": \"leader\"\n" +
                         "}")
                 .contentType(JSON)
-                .post("/users")
+                .post("/api/users")
                 .then()
                 .log().all()
                 .statusCode(201)
@@ -62,7 +64,7 @@ public int minTokenLength = 16;
     void deleteUserTest() {
         given()
                 .header("x-api-key", "reqres-free-v1")
-                .delete("/users/2")
+                .delete("/api/users/2")
                 .then()
                 .statusCode(204);
     }
