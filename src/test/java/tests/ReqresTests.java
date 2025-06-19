@@ -36,7 +36,7 @@ public class ReqresTests {
     void getSingleUserNotFoundTest() {
         given()
                 .header("x-api-key", "reqres-free-v1")
-                .get("/api/users/23")
+                .get("/users/23")
                 .then()
                 .statusCode(404);
     }
@@ -51,7 +51,7 @@ public class ReqresTests {
                         "    \"job\": \"leader\"\n" +
                         "}")
                 .contentType(JSON)
-                .post("/api/users")
+                .post("/users")
                 .then()
                 .log().all()
                 .statusCode(201)
@@ -64,7 +64,7 @@ public class ReqresTests {
     void deleteUserTest() {
         given()
                 .header("x-api-key", "reqres-free-v1")
-                .delete("/api/users/2")
+                .delete("/users/2")
                 .then()
                 .statusCode(204);
     }

@@ -1,10 +1,12 @@
 package tests;
 
 import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import io.restassured.specification.RequestSpecification;
+import models.lombok.GetUserResponceLombokModel;
 import models.lombok.RegisterBodyLombokModel;
 import models.lombok.RegisterResponseLombokBodyModel;
-import models.pojo.RegisterBodyModel;
-import models.pojo.RegisterResponseBodyModel;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static io.qameta.allure.Allure.step;
@@ -14,41 +16,67 @@ import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static specs.DeleteUserSpec.deleteResponseSpec;
+import static specs.DeleteUserSpec.deleteSpec;
+import static specs.GetUserNegativeSpec.getUserNegativeResponseSpec;
+import static specs.GetUserNegativeSpec.getUserNegativeSpec;
+import static specs.GetUserSpec.getUserResponseSpec;
+import static specs.GetUserSpec.getUserSpec;
 import static specs.RegisterSpec.registerResponseSpec;
 import static specs.RegisterSpec.registerSpec;
 
 public class ReqresTestsWithModel {
 
-    @Test
-    void getSingleUserPositive() {
-        get("https://reqres.in/api/users/2")
-                .then()
-                .statusCode(200)
-                .body("data.id", is(2))
-                .body("data.email", is("janet.weaver@reqres.in"))
-                .body("data.first_name", is("Janet"))
-                .body("data.last_name", is("Weaver"))
-                .body("data.avatar", is("https://reqres.in/img/faces/2-image.jpg"))
-        ;
+    public int minTokenLength = 16;
+
+    @BeforeAll
+    static void beforeAll() {
+        RestAssured.baseURI = "https://reqres.in";
+        RestAssured.basePath = "/api";
     }
 
     @Test
-    void getSingleUserNotFound() {
-        given()
-                .header("x-api-key", "reqres-free-v1")
-                .get("https://reqres.in/api/users/23")
-                .then()
-                .statusCode(404);
+    void getSingleUserPositiveTest() {
+        GetUserResponceLombokModel responce = step("Make tequest", () -> {
+            return given(getUserSpec)
+                    .header("x-api-key", "reqres-free-v1")
+                    .get("/users/2")
+                    .then()
+                    .spec(getUserResponseSpec)
+                    .extract().body().as(GetUserResponceLombokModel.class);
+        });
+
+        step("Check responce", () -> {
+            assertEquals(2, responce.getData().getId());
+            assertEquals("janet.weaver@reqres.in", responce.getData().getEmail());
+            assertEquals("Janet", responce.getData().getFirst_name());
+            assertEquals("Weaver", responce.getData().getLast_name());
+            assertEquals("https://reqres.in/img/faces/2-image.jpg", responce.getData().getAvatar());
+        });
+    }
+
+
+    @Test
+    void getSingleUserNotFoundTest() {
+        GetUserResponceLombokModel responce = step("Make tequest", () -> {
+            return given(getUserNegativeSpec)
+                    .header("x-api-key", "reqres-free-v1")
+                    .get("/users/23")
+                    .then()
+                    .spec(getUserNegativeResponseSpec)
+                    .extract().body().as(GetUserResponceLombokModel.class);
+        });
+
     }
 
     @Test
-    void createNewUser() {
+    void createNewUserTest() {
         given()
                 .log().all()
                 .header("x-api-key", "reqres-free-v1")
                 .body("{\"name\": \"morpheus\", \"job\": \"leader\"}")
                 .contentType(JSON)
-                .post("https://reqres.in/api/users")
+                .post("/users")
                 .then()
                 .log().all()
                 .statusCode(201)
@@ -58,56 +86,17 @@ public class ReqresTestsWithModel {
     }
 
     @Test
-    void deleteUser() {
-        given()
-                .header("x-api-key", "reqres-free-v1")
-                .delete("https://reqres.in/api/users/2")
-                .then()
-                .statusCode(204);
+    void deleteUserTest() {
+        step("Make tequest", () -> {
+            return given(deleteSpec)
+                    .header("x-api-key", "reqres-free-v1")
+                    .delete("/users/2")
+                    .then()
+                    .spec(deleteResponseSpec);
+        });
+
     }
 
-    @Test
-    void registerUserPOJOPositive() {
-        RegisterBodyModel authData = new RegisterBodyModel();
-        authData.setEmail("eve.holt@reqres.in");
-        authData.setPassword("pistol");
-
-        RegisterResponseBodyModel responce = given()
-                .log().all()
-                .header("x-api-key", "reqres-free-v1")
-                .body(authData)
-                .contentType("application/json")
-                .post("https://reqres.in/api/register")
-                .then()
-                .log().all()
-                .statusCode(200)
-                .extract().body().as(RegisterResponseBodyModel.class);
-
-        assertEquals("QpwL5tke4Pnpja7X4", responce.getToken());
-        assertEquals(4, responce.getId());
-    }
-
-    @Test
-    void registerUserLombokPositive() {
-        RegisterBodyLombokModel authData = new RegisterBodyLombokModel();
-        authData.setEmail("eve.holt@reqres.in");
-        authData.setPassword("pistol");
-
-        RegisterResponseLombokBodyModel responce = given()
-                .filter(new AllureRestAssured())
-                .log().all()
-                .header("x-api-key", "reqres-free-v1")
-                .body(authData)
-                .contentType("application/json")
-                .post("https://reqres.in/api/register")
-                .then()
-                .log().all()
-                .statusCode(200)
-                .extract().body().as(RegisterResponseLombokBodyModel.class);
-
-        assertEquals("QpwL5tke4Pnpja7X4", responce.getToken());
-        assertEquals(4, responce.getId());
-    }
 
     @Test
     void registerUserLombokPositiveCastomAllure() {
@@ -118,10 +107,9 @@ public class ReqresTestsWithModel {
             return given(registerSpec)
                     .header("x-api-key", "reqres-free-v1")
                     .body(authData)
-                    .post("/api/register")
+                    .post("/register")
                     .then()
                     .spec(registerResponseSpec)
-                    .statusCode(200)
                     .extract().body().as(RegisterResponseLombokBodyModel.class);
         });
 
