@@ -1,21 +1,22 @@
 package tests;
 
-import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
-import io.restassured.specification.RequestSpecification;
-import models.lombok.GetUserResponceLombokModel;
-import models.lombok.RegisterBodyLombokModel;
-import models.lombok.RegisterResponseLombokBodyModel;
+import models.lombok.*;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
-import static io.restassured.http.ContentType.JSON;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static specs.CreateNewUserSpec.createUserResponceSpec;
+import static specs.CreateNewUserSpec.createUserSpec;
 import static specs.DeleteUserSpec.deleteResponseSpec;
 import static specs.DeleteUserSpec.deleteSpec;
 import static specs.GetUserNegativeSpec.getUserNegativeResponseSpec;
@@ -25,6 +26,7 @@ import static specs.GetUserSpec.getUserSpec;
 import static specs.RegisterSpec.registerResponseSpec;
 import static specs.RegisterSpec.registerSpec;
 
+@Tag("SMOKE")
 public class ReqresTestsWithModel {
 
     public int minTokenLength = 16;
@@ -36,6 +38,7 @@ public class ReqresTestsWithModel {
     }
 
     @Test
+    @DisplayName("Получение одного пользователя позитивный")
     void getSingleUserPositiveTest() {
         GetUserResponceLombokModel responce = step("Make tequest", () -> {
             return given(getUserSpec)
@@ -57,6 +60,7 @@ public class ReqresTestsWithModel {
 
 
     @Test
+    @DisplayName("Получение одного пользователя пользователь не найден")
     void getSingleUserNotFoundTest() {
         GetUserResponceLombokModel responce = step("Make tequest", () -> {
             return given(getUserNegativeSpec)
@@ -70,22 +74,31 @@ public class ReqresTestsWithModel {
     }
 
     @Test
+    @DisplayName("Создание нового пользователя")
     void createNewUserTest() {
-        given()
-                .log().all()
-                .header("x-api-key", "reqres-free-v1")
-                .body("{\"name\": \"morpheus\", \"job\": \"leader\"}")
-                .contentType(JSON)
-                .post("/users")
-                .then()
-                .log().all()
-                .statusCode(201)
-                .body("", hasKey("id"))
-                .body("", hasKey("createdAt"))
-        ;
+        CreateNewUserResponseLombokModel response = step("Make tequest", () -> {
+            CreateNewUserResponseLombokModel createData = new CreateNewUserResponseLombokModel();
+            createData.setName("morpheus");
+            createData.setJob("leader");
+            return given(createUserSpec)
+                    .header("x-api-key", "reqres-free-v1")
+                    .body(createData)
+                    .post("/users")
+                    .then()
+                    .spec(createUserResponceSpec)
+                    .extract().body().as(CreateNewUserResponseLombokModel.class);
+        });
+
+        step("Check responce", () -> {
+            assertEquals("morpheus", response.getName());
+            assertEquals("leader", response.getJob());
+            assertNotNull(response.getId());
+            assertNotNull(response.getCreatedAt());
+        });
     }
 
     @Test
+    @DisplayName("Удаление пользователя")
     void deleteUserTest() {
         step("Make tequest", () -> {
             return given(deleteSpec)
@@ -97,8 +110,8 @@ public class ReqresTestsWithModel {
 
     }
 
-
     @Test
+    @DisplayName("Регистрация нового пользователя")
     void registerUserLombokPositiveCastomAllure() {
         RegisterBodyLombokModel authData = new RegisterBodyLombokModel();
         authData.setEmail("eve.holt@reqres.in");
