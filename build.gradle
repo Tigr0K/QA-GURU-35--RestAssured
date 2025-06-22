@@ -26,13 +26,14 @@ allure {
 
 dependencies {
     testImplementation(
+            "com.codeborne:selenide:7.7.3",
             'io.rest-assured:rest-assured:5.5.5',
             'io.rest-assured:json-schema-validator:5.5.5',
             'org.junit.jupiter:junit-jupiter:5.12.1',
             'org.slf4j:slf4j-simple:2.0.17',
             'io.qameta.allure:allure-rest-assured:2.13.8',
-            'com.codeborne:selenide:7.7.3'
-
+            'com.codeborne:selenide:7.7.3',
+            "io.qameta.allure:allure-selenide:2.25.0"
     )
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
