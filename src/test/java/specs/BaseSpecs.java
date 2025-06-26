@@ -9,16 +9,17 @@ import static io.restassured.RestAssured.with;
 import static io.restassured.filter.log.LogDetail.BODY;
 import static io.restassured.filter.log.LogDetail.STATUS;
 
-public class GetUserSpec {
-    public static RequestSpecification getUserSpec = with()
+public class BaseSpecs {
+    public static RequestSpecification reqSpec = with()
             .filter(withCustomTemplates())
             .log().all()
-            .contentType("application/json")
-            ;
+            .contentType("application/json");
 
-    public static ResponseSpecification getUserResponseSpec = new ResponseSpecBuilder()
-            .expectStatusCode(200)
-            .log(STATUS)
-            .log(BODY)
-            .build();
+    public static ResponseSpecification returnResSpec(int expectedStatusCode){
+        return  new ResponseSpecBuilder()
+                .expectStatusCode(expectedStatusCode)
+                .log(STATUS)
+                .log(BODY)
+                .build();
+    }
 }

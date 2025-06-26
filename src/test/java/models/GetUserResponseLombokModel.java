@@ -1,8 +1,8 @@
-package models.lombok;
+package models;
 import lombok.Data;
 
 @Data
-public class GetUserResponceLombokModel {
+public class GetUserResponseLombokModel {
     Data data;
     Support support;
     @lombok.Data

@@ -1,4 +1,5 @@
-package models.lombok;
+package models;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
