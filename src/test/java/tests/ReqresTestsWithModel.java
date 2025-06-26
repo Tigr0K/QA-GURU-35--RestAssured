@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import specs.BaseSpecs;
+
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,7 +44,6 @@ public class ReqresTestsWithModel {
             assertEquals("https://reqres.in/img/faces/2-image.jpg", responce.getData().getAvatar());
         });
     }
-
 
     @Test
     @DisplayName("Получение одного пользователя пользователь не найден")
