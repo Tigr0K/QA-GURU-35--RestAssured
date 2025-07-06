@@ -1,10 +1,7 @@
 package tests;
 
 import io.restassured.RestAssured;
-import models.CreateNewUserResponseLombokModel;
-import models.GetUserResponseLombokModel;
-import models.RegisterBodyLombokModel;
-import models.RegisterResponseLombokBodyModel;
+import models.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -48,7 +45,7 @@ public class ReqresTestsWithModel {
     @Test
     @DisplayName("Получение одного пользователя пользователь не найден")
     void getSingleUserNotFoundTest() {
-        GetUserResponseLombokModel responce = step("Make tequest", () -> given(BaseSpecs.reqSpec)
+        step("Make tequest", () -> given(BaseSpecs.reqSpec)
                 .header("x-api-key", "reqres-free-v1")
                 .get("/users/23")
                 .then()
@@ -60,18 +57,17 @@ public class ReqresTestsWithModel {
     @Test
     @DisplayName("Создание нового пользователя")
     void createNewUserTest() {
-        CreateNewUserResponseLombokModel response = step("Make tequest", () -> {
-            CreateNewUserResponseLombokModel createData = new CreateNewUserResponseLombokModel();
-            createData.setName("morpheus");
-            createData.setJob("leader");
-            return given(BaseSpecs.reqSpec)
-                    .header("x-api-key", "reqres-free-v1")
-                    .body(createData)
-                    .post("/users")
-                    .then()
-                    .spec(BaseSpecs.returnResSpec(201))
-                    .extract().body().as(CreateNewUserResponseLombokModel.class);
-        });
+        CreateNewUserRequestLombokModel createData = new CreateNewUserRequestLombokModel();
+        createData.setName("morpheus");
+        createData.setJob("leader");
+
+        CreateNewUserResponseLombokModel response = step("Make tequest", () -> given(BaseSpecs.reqSpec)
+                .header("x-api-key", "reqres-free-v1")
+                .body(createData)
+                .post("/users")
+                .then()
+                .spec(BaseSpecs.returnResSpec(201))
+                .extract().body().as(CreateNewUserResponseLombokModel.class));
 
         step("Check responce", () -> {
             assertEquals("morpheus", response.getName());
