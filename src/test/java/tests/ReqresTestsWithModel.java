@@ -57,9 +57,7 @@ public class ReqresTestsWithModel {
     @Test
     @DisplayName("Создание нового пользователя")
     void createNewUserTest() {
-        CreateNewUserRequestLombokModel createData = new CreateNewUserRequestLombokModel();
-        createData.setName("morpheus");
-        createData.setJob("leader");
+        CreateNewUserRequestLombokModel createData = new CreateNewUserRequestLombokModel("morpheus","leader");
 
         CreateNewUserResponseLombokModel response = step("Make tequest", () -> given(BaseSpecs.reqSpec)
                 .header("x-api-key", "reqres-free-v1")
